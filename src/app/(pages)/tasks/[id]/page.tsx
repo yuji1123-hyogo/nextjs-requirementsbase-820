@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-async function fetchTask(id: string): Promise<Task | null> {
+export async function fetchTask(id: string): Promise<Task | null> {
   try {
     const response = await fetch(`http://localhost:3000/api/tasks/${id}`, {
       cache: "no-store",
