@@ -1,5 +1,6 @@
 import TaskList from "@/app/components/tasks/TaskList";
 import { ApiResponse, Task } from "@/app/types/tasks.type";
+import Link from "next/link";
 
 async function fetchTasks(): Promise<Task[]> {
   try {
@@ -36,6 +37,12 @@ export default async function Page() {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">タスク一覧</h1>
         <p className="text-gray-600">{tasks.length}件のタスクがあります</p>
       </div>
+      <Link
+        href="/tasks/new"
+        className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+      >
+        新しいタスクを作成
+      </Link>
 
       <TaskList tasks={tasks} />
     </div>

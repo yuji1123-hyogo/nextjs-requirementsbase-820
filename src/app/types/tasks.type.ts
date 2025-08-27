@@ -32,18 +32,12 @@ export type TaskFormData = {
   status: TaskStatus;
 };
 
-export type ValidationErrors = {
-  title?: string;
-  description?: string;
-  status?: string;
-};
-
-type CreateTask = z.infer<typeof CreateTaskSchema>;
-type UpdateTask = z.infer<typeof UpdateTaskSchema>;
+type CreateTaskData = z.infer<typeof CreateTaskSchema>;
+type UpdateTaskData = z.infer<typeof UpdateTaskSchema>;
 
 export type TaskFormState = {
   success: boolean;
-  errors?: ValidationErrors;
-  data?: CreateTask | UpdateTask;
+  errors?: Record<string, string[] | undefined>;
+  data?: CreateTaskData | UpdateTaskData;
   message?: string;
 };

@@ -3,6 +3,7 @@
 import { Task, TaskStatus } from "@/app/types/tasks.type";
 import React, { useState } from "react";
 import { getStatusConfig } from "./Task";
+import Link from "next/link";
 
 interface TaskDetailProps {
   task: Task;
@@ -87,6 +88,12 @@ export default function TaskDetail({ task, onStatusUpdate }: TaskDetailProps) {
         <p>更新日: {new Date(task.updatedAt).toLocaleDateString()}</p>
         <p>タスクID:{task.id}</p>
       </div>
+      <Link
+        href={`/tasks/${task.id}/edit`}
+        className="bg-gray-600 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors"
+      >
+        編集
+      </Link>
     </div>
   );
 }

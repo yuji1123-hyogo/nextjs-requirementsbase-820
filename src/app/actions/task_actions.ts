@@ -3,6 +3,7 @@ import { ZodSchema } from "zod";
 import { TaskFormState } from "../types/tasks.type";
 import { CreateTaskSchema, UpdateTaskSchema } from "../schema/task_schema";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 function validateSchema<T>(
   schema: ZodSchema<T>,
@@ -19,16 +20,16 @@ function validateSchema<T>(
     return { success: false, error: errorResult };
   }
 }
-
 export async function createTaskAction(
   prevState: TaskFormState,
   formData: FormData
 ): Promise<TaskFormState> {
   const input = {
     title: formData.get("title"),
-    description: formData.get("description"),
+    description: formData.get("description") || "", // undefinedの場合は空文字
     status: formData.get("status"),
   };
+
   const validationResult = validateSchema(CreateTaskSchema, input);
 
   if (!validationResult.success) {
@@ -47,37 +48,38 @@ export async function createTaskAction(
     });
 
     if (!res.ok) {
+      const errorData = await res.json();
       return {
         success: false,
         errors: {},
-        message: "API呼び出しに失敗しました",
+        message: errorData.message || "API呼び出しに失敗しました",
       };
     }
 
+    await res.json();
     revalidatePath("/tasks");
-    return {
-      success: true,
-      data: validationResult.data,
-      message: "タスクの作成に成功しました",
-    };
-  } catch {
+  } catch (error) {
+    console.error("作成アクションエラー:", error);
     return {
       success: false,
       errors: {},
       message: "タスクの作成に失敗しました",
     };
   }
+
+  // 成功時はリダイレクト
+  redirect("/tasks");
 }
 
 export async function updateTaskAction(
   prevState: TaskFormState,
   formData: FormData
 ): Promise<TaskFormState> {
-  const id = formData.get("id") as string; // hidden から取得
+  const id = formData.get("id") as string;
 
   const formInput = {
     title: formData.get("title"),
-    description: formData.get("description"),
+    description: formData.get("description") || "", // undefinedの場合は空文字
     status: formData.get("status"),
   };
 
@@ -97,26 +99,27 @@ export async function updateTaskAction(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ data: validationResult.data }),
     });
+
     if (!res.ok) {
+      const errorData = await res.json();
       return {
         success: false,
         errors: {},
-        message: "タスクの更新に失敗しました",
+        message: errorData.message || "タスクの更新に失敗しました",
       };
     }
 
     revalidatePath("/tasks");
     revalidatePath(`/tasks/${id}`);
-    return {
-      success: true,
-      data: validationResult.data,
-      message: "タスクの更新に成功しました",
-    };
-  } catch {
+  } catch (error) {
+    console.error("更新アクションエラー:", error);
     return {
       success: false,
       errors: {},
       message: "タスクの更新に失敗しました",
     };
   }
+
+  // 成功時はリダイレクト
+  redirect(`/tasks/${id}`);
 }
