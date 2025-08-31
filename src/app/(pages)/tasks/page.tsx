@@ -1,36 +1,49 @@
-import TaskList from "@/app/components/tasks/TaskList";
-import { ApiResponse, Task } from "@/app/types/tasks.type";
-import Link from "next/link";
+import TaskList from '@/app/components/tasks/TaskList';
+import { ApiResponse, Task } from '@/app/types/tasks.type';
+import Link from 'next/link';
 
-async function fetchTasks(): Promise<Task[]> {
+async function fetchFilteredTasks(filters) {
+  const params = new URLSearchParams();
+
+  if (filters.search) {
+    params.append('search', filters.search);
+  }
+  if (filters.sortBy) {
+    params.append('sortBy', filters.sortBy);
+  }
+  if (filters.order) {
+    params.append('order', filters.sortBy);
+  }
+  const url = `http://localhost:3000/api/tasks${params.toString() && `?${params.toString()}`}`;
+
   try {
-    const response = await fetch(`http://localhost:3000/api/tasks`, {
-      cache: "no-store",
+    const response = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
-    console.log("📶📶📶response", response);
-
-    if (!response.ok) {
-      throw new Error("タスクの取得に失敗しました");
+    if (response.ok) {
+      throw new Error(`HTTP ERROR in fetchFilteredTasks`);
     }
 
-    const result: ApiResponse<Task[]> = await response.json();
-
-    console.log("📶📶📶result", result);
-    if (!result.success) {
-      throw new Error("タスクの取得に失敗しました");
-    }
-
-    return result.data;
+    return await response.json();
   } catch (error) {
-    console.error(error);
-    throw error;
+    console.error('データ取得エラー:', error);
+    return {
+      data: [],
+      totalCount: 0,
+      filteredCount: 0,
+      success: false,
+      message: 'データの取得に失敗しました',
+    };
   }
 }
 
 export default async function Page() {
   const tasks = await fetchTasks();
-  console.log("📝📝📝fetch-tasks", tasks);
+  console.log('📝📝📝fetch-tasks', tasks);
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">

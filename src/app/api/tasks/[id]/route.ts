@@ -1,21 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
-import { tasks } from "../../../mockDB/tasks";
+import { NextRequest, NextResponse } from 'next/server';
+import { tasks } from '../../../mockDB/tasks';
 
 // タスク詳細取得
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const task = tasks.find((t) => t.id === id);
   if (!task) {
     return NextResponse.json(
-      { message: "タスクが見つかりません", success: false },
+      { message: 'タスクが見つかりません', success: false },
       { status: 404 }
     );
   }
   const response = NextResponse.json({
-    message: "タスクを取得しました",
+    message: 'タスクを取得しました',
     success: true,
     data: task,
   });
@@ -37,7 +34,7 @@ export async function PUT(
     const updateTargetIndex = tasks.findIndex((t) => t.id === id);
     if (updateTargetIndex == -1) {
       return NextResponse.json({
-        message: "タスクが存在しません",
+        message: 'タスクが存在しません',
         success: false,
       });
     }
@@ -53,19 +50,19 @@ export async function PUT(
 
     return NextResponse.json(
       {
-        message: "タスクの更新に成功しました",
+        message: 'タスクの更新に成功しました',
         success: true,
         data: updatedTask,
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error("タスク更新エラー:", error);
+    console.error('タスク更新エラー:', error);
     return NextResponse.json(
       {
         data: null,
         success: false,
-        message: "タスクの更新に失敗しました",
+        message: 'タスクの更新に失敗しました',
       },
       { status: 500 }
     );
